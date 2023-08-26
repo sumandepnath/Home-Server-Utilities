@@ -1,0 +1,42 @@
+version: '3'
+services:
+  app:
+    image: 'jc21/nginx-proxy-manager:latest'
+    container_name: nginxmanager
+    ports:
+      - '80:80'
+      - '81:81'
+      - '443:443'
+    environment:
+      PGID: 1000
+      PUID: 1000
+      DB_MYSQL_HOST: "nginxdb"
+      DB_MYSQL_PORT: 3306
+      DB_MYSQL_USER: "npm"
+      DB_MYSQL_PASSWORD: "npm"
+      DB_MYSQL_NAME: "npm"
+    volumes:
+      - ./nginx-data:/data
+      - ./letsencrypt:/etc/letsencrypt
+    networks:
+      - nginx
+    dns:
+      - 192.168.2.100
+  db:
+    image: 'jc21/mariadb-aria:latest'
+    container_name: nginxdb
+    user: root:root
+    environment:
+      MYSQL_ROOT_PASSWORD: 'npm'
+      MYSQL_DATABASE: 'npm'
+      MYSQL_USER: 'npm'
+      MYSQL_PASSWORD: 'npm'
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+    networks:
+      - nginx
+    dns:
+      - 192.168.2.100
+networks:
+  nginx:
+    name: nginx
